@@ -74,12 +74,12 @@ router.get("/search", (req, res) => {
     }
 
     if (target_funding) {
-        query += ` AND FUNDRAISER.TARGET_FUNDING >= ?`;
+        query += ` AND FUNDRAISER.TARGET_FUNDING = ?`;
         queryParams.push(target_funding);
     }
 
     if (current_funding) {
-        query += ` AND FUNDRAISER.CURRENT_FUNDING >= ?`;
+        query += ` AND FUNDRAISER.CURRENT_FUNDING = ?`;
         queryParams.push(current_funding);
     }
 
