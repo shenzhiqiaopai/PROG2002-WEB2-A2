@@ -1,0 +1,144 @@
+<!-- This file is the HTML of the SearchFundraiser page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraising Platform - Home</title>
+    <link rel="stylesheet" href="SearchFundraisers.css">
+</head>
+<body>
+    <!-- Header Section with Navigation -->
+    <header>
+        <nav>
+            <ul>
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="SearchFundraisers.html">Search Fundraisers</a></li>
+                <li><a href="Fundraisers.html">Fundraiser</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+
+    <main>
+        <section id="search-section">
+            <h2>Search Fundraisers</h2>
+
+            <form id="search-form">
+
+                <!--Enter the name of the organizer-->
+                <label for="organizer">Organizer:</label>
+                <input type="text" id="organizer" name="organizer"><br><br>
+
+                <!--Enter the fundraiser's captain-->
+                <label for="caption">Caption:</label>
+                <input type="text" id="caption" name="caption"><br><br>
+
+                <!--Enter target amount-->
+                <label for="target_funding">Target Funding (AUD):</label>
+                <input type="number" id="target_funding" name="target_funding"><br><br>
+
+                <!--Enter the current amount-->
+                <label for="current_funding">Current Funding (AUD):</label>
+                <input type="number" id="current_funding" name="current_funding"><br><br>
+
+                <!--Enter the fundraiser's city-->
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city"><br><br>
+
+                <!--Select the fundraiser category-->
+                <label for="category">Category:</label>
+                <select id="category" name="category">
+                    <option value="">Select a Category</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education</option>
+                    <option value="Environment">Environment</option>
+                    <option value="Disaster Relief">Disaster Relief</option>
+                    <option value="Entrepreneurship">Entrepreneurship</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Animal Protection">Animal Protection</option>
+                    <option value="Arts and Culture">Arts and Culture</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Religion">Religion</option>
+                </select><br><br>
+
+                <!--Search button and Clear button-->
+                <button type="button" onclick="searchFundraisers()">Search</button>
+                <button type="button" onclick="clearCheckboxes()">Clear</button>
+            </form>
+            
+            <!--Here are the results-->
+            <h2>Results:</h2>
+            <div id="error-message" style="color: red; font-weight: bold;text-align:center"></div>
+            <div id="results"></div>
+        </section>
+
+            <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Qiao Kang Fundraising Web. All Rights Reserved.</p>
+    </footer>
+    </main>
+
+    <script>
+        //This function gets the search criteria entered by the user from the form.
+        function searchFundraisers() {
+            //Getting User Input
+            const organizer = document.getElementById('organizer').value;
+            const caption = document.getElementById('caption').value;
+            const targetFunding = document.getElementById('target_funding').value;
+            const currentFunding = document.getElementById('current_funding').value;
+            const city = document.getElementById('city').value;
+            const category = document.getElementById('category').value;
+
+            // Make sure at least one condition is selected
+            if (!organizer && !caption && !targetFunding && !currentFunding && !city && !category) {
+                alert('Please select at least one criteria.');
+                return;
+            }
+
+            //Create a new URLSearchParams object for building a query string.
+            const queryParams = new URLSearchParams();
+            //Use the append method to add valid conditions entered by the user to the query parameters.
+            if (organizer) queryParams.append('organizer', organizer);
+            if (caption) queryParams.append('caption', caption);
+            if (targetFunding) queryParams.append('target_funding', targetFunding);
+            if (currentFunding) queryParams.append('current_funding', currentFunding);
+            if (city) queryParams.append('city', city);
+            if (category) queryParams.append('category_name', category);
+
+            fetch(`http://localhost:3060/api/search?${queryParams.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(fundraiser => {
+                            const fundraiserLink = document.createElement('a');
+                            fundraiserLink.href = `http://localhost:8080/fundraiser?id=${fundraiser.FUNDRAISER_ID}`; // create a link for each project that points to the fundraising project's detailed information page.
+                            fundraiserLink.textContent = `Organizer: ${fundraiser.ORGANIZER}, Caption: ${fundraiser.CAPTION}, City: ${fundraiser.CITY}, Target Funding: ${fundraiser.TARGET_FUNDING}, Current Funding: ${fundraiser.CURRENT_FUNDING}, Category: ${fundraiser.category_name}`;
+
+                            const br = document.createElement('br');
+                            resultsDiv.appendChild(fundraiserLink);
+                            resultsDiv.appendChild(br);
+                        });
+                    } else {
+                        document.getElementById('error-message').textContent = 'No fundraisers found.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching fundraisers:', error);
+                    document.getElementById('error-message').textContent = 'Failed to fetch data';
+                });
+        }
+
+        //This function resets the search form and clears search results and error messages.
+        function clearCheckboxes() {
+            document.getElementById('search-form').reset();
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('error-message').textContent = '';
+        }
+    </script>
+
+</body>
+</html>

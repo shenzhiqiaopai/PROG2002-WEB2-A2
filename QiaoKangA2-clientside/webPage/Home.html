@@ -1,0 +1,92 @@
+<!-- This is my Home page HTML file -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraising Platform - Home</title>
+    <link rel="stylesheet" href="Home.css">
+</head>
+<body>
+    <!-- Header Section with Navigation -->
+    <header>
+        <nav>
+            <ul>
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="SearchFundraisers.html">Search Fundraisers</a></li>
+                <li><a href="Fundraisers.html">Fundraiser</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Welcome area -->
+        <section id="welcome">
+            <h1>Welcome to Qiao Kang's Fundraising Website</h1>
+            <p>Welcome to my fundraising site! First of all, thank you very much, whether you donate or not, because your presence here has proved that you have the desire to help others. Every donation will be used to help others. Whether it is to support post-disaster reconstruction, to enable poor children to get an education, or to raise funds for a cause you care about, you can find an opportunity to change the world or at least change one person here.</p>
+        </section>
+
+        <h2 style="text-align: center;">All Active Fundraisers</h2>
+        <!-- Here is a list of active fundraisers -->
+        <div id="data"></div> 
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2>Contact Me</h2>
+            <p>If you have any questions, contact me by <strong><a href="mailto:q.kang.10@student.scu.edu.au">q.kang.10@student.scu.edu.au</a></strong>.</p>
+        </section>
+
+        <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Qiao Kang Fundraising Web. All Rights Reserved.</p>
+    </footer>
+
+    </main>
+
+    <script>
+        // Call the backend GET API to get all active fundraisers
+        fetch("http://localhost:3060/api/active") 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok ");//If the request fails, an error is thrown.
+                }
+                return response.json();//If successful, the response data will be parsed into JSON format
+            })
+            .then(data => {
+                const dataDiv = document.getElementById('data'); // Get the div with id 'data'
+                dataDiv.innerHTML = ""; // Clear the existing content
+
+                //Check whether the returned data has records
+                if (data.length > 0) {
+                data.forEach(fundraiser => {
+                    //Create a new <div> element for each donation record and give it a CSS class name of fundraiser-card
+                    const fundraiserDiv = document.createElement("div");
+                    fundraiserDiv.className = "fundraiser-card";
+
+                    // Add all fundraiser fields
+                    fundraiserDiv.innerHTML = `
+                        <h3>${fundraiser.CAPTION}</h3>
+                        <p><strong>ID:</strong> ${fundraiser.FUNDRAISER_ID}</p>
+                        <p><strong>Organiser:</strong> ${fundraiser.ORGANIZER}</p>
+                        <p><strong>Target Funding:</strong> ${fundraiser.TARGET_FUNDING} AUD</p>
+                        <p><strong>Current Funding:</strong> ${fundraiser.CURRENT_FUNDING} AUD</p>
+                        <p><strong>City:</strong> ${fundraiser.CITY}</p>
+                        <p><strong>Category:</strong> ${fundraiser.category_name}</p>
+                        <p><strong>Status:</strong> ${fundraiser.ACTIVE ? "Active" : "Suspended"}</p>
+                    `;
+                    //Add the constructed fundraiserDiv to dataDiv so that each fundraising record will be displayed on the web page.
+                    dataDiv.appendChild(fundraiserDiv);
+                });
+                } else {
+                    //If the returned data length is 0, it means there is no fundraising activity.
+                    dataDiv.textContent = "No active fundraisers";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                document.getElementById('data').textContent = "Failed to load data";
+            });
+    </script>
+</body>
+</html>

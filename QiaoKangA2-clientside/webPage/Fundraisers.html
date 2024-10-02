@@ -1,0 +1,93 @@
+<!--This is the html of my Fundraiser page-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraising Platform - Home</title>
+    <link rel="stylesheet" href="Fundraisers.css">
+</head>
+<body>
+    <!-- Header Section with Navigation -->
+    <header>
+        <nav>
+            <ul>
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="SearchFundraisers.html">Search Fundraisers</a></li>
+                <li><a href="Fundraisers.html">Fundraiser</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div id="fundraiserDetails" class="fundraiser-details">
+            <!-- Fundraiser details will be displayed here -->
+        </div>
+        <button class="donate-btn" onclick="showDonateMessage()">Donate</button>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Qiao Kang Fundraising Web. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Extract the fundraiser ID from the query string
+        const params = new URLSearchParams(window.location.search);
+        const fundraiserId = params.get('id'); 
+    
+
+        //This function is used to obtain detailed information about the fundraising project.
+        function fetchFundraiserDetails() {
+            if (!fundraiserId) {
+                document.getElementById('fundraiserDetails').innerHTML = '<p>No fundraiser selected.</p>';
+                return;
+            }
+    
+            // Fetch the fundraiser details from the API using the fundraiser ID
+            fetch(`http://localhost:3060/api/${fundraiserId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.length > 0) {
+                        displayFundraiserDetails(data[0]); // If data exists and the array length is greater than 0, call the displayFundraiserDetails function to display the detailed information of the obtained fundraising project.
+                    } else {
+                        document.getElementById('fundraiserDetails').innerHTML = '<p>Fundraiser not found.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching fundraiser:', error);
+                    document.getElementById('fundraiserDetails').innerHTML = '<p>Failed to load fundraiser details.</p>';
+                });
+        }
+    
+
+        //This function is used to display the detailed information of the fundraising project on the web page.
+        function displayFundraiserDetails(fundraiser) {
+            const detailsDiv = document.getElementById('fundraiserDetails');
+            detailsDiv.innerHTML = `
+                <h2>${fundraiser.CAPTION}</h2>
+                <p><strong>Organizer:</strong> ${fundraiser.ORGANIZER}</p>
+                <p><strong>Target Funding:</strong> ${fundraiser.TARGET_FUNDING} AUD</p>
+                <p><strong>Current Funding:</strong> ${fundraiser.CURRENT_FUNDING} AUD</p>
+                <p><strong>City:</strong> ${fundraiser.CITY}</p>
+                <p><strong>Category:</strong> ${fundraiser.category_name}</p>
+                <p><strong>Status:</strong> ${fundraiser.ACTIVE ? 'Active' : 'Inactive'}</p>
+            `;
+        }
+    
+        //This function is used to display the function after the donation button is clicked
+        function showDonateMessage() {
+            alert("This feature is under construction");
+        }
+    
+        // Load fundraiser details when the page loads
+        window.onload = fetchFundraiserDetails;
+    </script>
+
+</body>
+</html>
